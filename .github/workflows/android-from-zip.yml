@@ -7,6 +7,15 @@ on:
         description: "Also build Linux, macOS and iOS (macOS minutes cost 10x)"
         type: boolean
         default: false
+      mac_runner:
+        description: "macOS runner label (try another if one is not supported)"
+        type: choice
+        options:
+          - macos-15-intel
+          - macos-15
+          - macos-14
+          - macos-latest
+        default: macos-15-intel
 
 permissions:
   contents: write
@@ -48,7 +57,8 @@ jobs:
 
   macos:
     if: "github.event_name == 'workflow_dispatch' && inputs.ports"
-    runs-on: macos-14
+    runs-on: ${{ inputs.mac_runner }}
+    continue-on-error: true
     steps:
       - uses: actions/checkout@v4
       - name: Unpack the project
@@ -62,7 +72,7 @@ jobs:
 
   ios:
     if: "github.event_name == 'workflow_dispatch' && inputs.ports"
-    runs-on: macos-14
+    runs-on: ${{ inputs.mac_runner }}
     continue-on-error: true
     steps:
       - uses: actions/checkout@v4
@@ -90,4 +100,4 @@ jobs:
         with:
           tag_name: build-${{ github.run_number }}
           name: Archimedes build ${{ github.run_number }}
-          files: dist/* 
+          files: dist/*
